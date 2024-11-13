@@ -1,15 +1,16 @@
 ---
 import type { GetStaticPaths } from "astro";
 import Layout from "../layouts/Layout.astro"
+import { getLanguage } from "../services/pokemon";
 import { getPokemon } from '../services/pokemon';
 import { getPokemonSpecie } from "../services/pokemon";
 import { getPokemonList } from "../services/pokemon";
-import { check } from "@astrojs/check";
 
 const { name } = Astro.params;
 
 let detail;
 let specie;
+let language = await getLanguage({id: 9});
 
 if(name){
     detail = await getPokemon({name});
@@ -26,9 +27,22 @@ export async function getStaticPaths() {
         {params: {name: item.name}}
     ));
 }
+
 const imageUrl = `/img/landscape/${detail?.types[0]?.type?.name}.webp`;
 const pokemonName = detail?.name.replace("-", " ");
 const checkType = detail?.types[0]?.type?.name.match(/dark|fairy|fighting|ghost|ice|poison|psychic|steel|water|fire|electric/)
+let genusText = "???";
+let pokemonText = "???";
+
+// Texto donde va el peso y altura.
+specie?.genera?.map((item) =>(
+    item?.language?.name == language?.name ? genusText = item?.genus : genusText
+));
+
+// Texto de la descripción del pokémon.
+specie?.flavor_text_entries?.map((item) =>(
+    item?.language?.name == language?.name ? pokemonText = item?.flavor_text : pokemonText
+));
 
 let textColor = "text-black";
 if (checkType != null) textColor = "text-white"
@@ -50,21 +64,25 @@ if (checkType != null) textColor = "text-white"
                         <h2 class=`font-bold uppercase text-lg ${textColor} flex-1 text-center`>{pokemonName}</h2>
                         <p class="text-red-500 font-medium text-2xl flex-1 text-end [text-shadow:_.1px_.7px_0px_#000]" >{detail?.stats[0]?.base_stat}<span></span> HP</p> 
                     </div>
-                    <div class="mx-auto h-52 w-[19rem] relative-mt-18 border-4 border-yellow-300 overflow-hidden flex items-center justify-center h-screen">
+                    <div class="mx-auto h-52 w-[19rem] relative-mt-18 border-8 shadow-[4px_4px_10px_1px] border-yellow-300 overflow-hidden flex items-center justify-center">
                         <img class="object-cover object-center w-32" src={detail.sprites.other.showdown.front_default != null ? 
                     detail?.sprites?.other?.showdown?.front_default : detail.sprites.other["official-artwork"].front_default} alt={detail?.name}>
                     </div>
-                    <div class="bg-[#FFD700] w-[17rem] mx-auto mt-1 shadow-[4px_4px_10px_1px]  rounded-md">
-                        <p>wight</p>
+                    <div class="bg-[#FFD700] w-[18rem] mx-auto mt-1 shadow-[10px_10px_50px_.2px_#FFD700] rounded-sm text-[11px] px-1 flex italic justify-center font-medium justify-evenly">
+                        <p>{genusText}</p>
+                        <p>height: <span>{detail?.height/10}</span> mts.</p>
+                        <p>weight: <span>{detail?.weight/10}</span> kg.</p>
                     </div>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>r</p>
-                    <p>riuehgiuwheiwur</p>
+                    <br>
+                    <p class=`w-[18rem] mx-auto text-justify ${textColor} font-medium leading-5`>{pokemonText}</p>
+
+                    <!-- Se pone en dado caso de que tenga evolución el pokémon -->
+                    <p class="text-center font-semibold text-lg">Evolutions</p>
+                    <div class="mx-auto w-12 h-12 relative border-2 border-yellow-50 rounded-full">
+                        <img class="object-cover object-center skew-y-6 w-full" src={detail.sprites.other["official-artwork"].front_default} alt={detail?.name}>
+                    </div>
+                    <!-- Se pone en dado caso de que tenga evolución el pokémon -->
+
                 </div>
             </div>
         </div>
