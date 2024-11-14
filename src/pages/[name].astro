@@ -29,10 +29,14 @@ export async function getStaticPaths() {
 }
 
 const imageUrl = `/img/landscape/${detail?.types[0]?.type?.name}.webp`;
-const pokemonName = detail?.name.replace("-", " ");
+const pokemonName = detail?.name.replaceAll("-", " ");
 const checkType = detail?.types[0]?.type?.name.match(/dark|fairy|fighting|ghost|ice|poison|psychic|steel|water|fire|electric/)
+const nameEvolve = specie?.evolves_from_species?.name;
 let genusText = "???";
 let pokemonText = "???";
+let evolve;
+let textColor = "text-black";
+if(nameEvolve) evolve = await getPokemon({name: nameEvolve}); 
 
 // Texto donde va el peso y altura.
 specie?.genera?.map((item) =>(
@@ -44,26 +48,28 @@ specie?.flavor_text_entries?.map((item) =>(
     item?.language?.name == language?.name ? pokemonText = item?.flavor_text : pokemonText
 ));
 
-let textColor = "text-black";
 if (checkType != null) textColor = "text-white"
 ---
 
 <Layout title="pokemon">
     <main class="m-auto flex items-center justify-center h-screen">
-        <div class="bg-[#FFD700] p-5 w-[40rem] h-[34rem] sm:max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-sm shadow-[4px_4px_540px_40px] shadow-amber-100 rounded-lg">
-            <div class="rounded-lg" style={`background-image: url('${imageUrl}');  background-size: cover;`}>
+        <div class="bg-[#FFD700] p-4 w-[40rem] sm:max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-sm shadow-[4px_4px_540px_40px] shadow-amber-100 rounded-lg">
+            <div class="rounded-lg relative" style={`background-image: url('${imageUrl}');  background-size: cover;`}>
                 <div class="rounded-lg">
-                    <div class="flex justify-between items-center ps-1 pe-2">
-                        <div class="flex flex-1">
-                        {
-                            detail?.types.map((item) =>(
-                                <img class="me-0.5" src=`/img/icons/${item.type.name}.webp` alt={item.type.name} title={item.type.name} width="25px" height="25px"> 
-                            ))
-                        }
+                    <div class="flex justify-between items-center px-1">
+                        <div class="flex-none w-14"></div>
+                        <h2 class=`font-bold uppercase text-lg ${textColor} flex-1`>{pokemonName}</h2>
+                        <div class="flex-none">
+                            <p class="text-red-500 font-medium text-2xl  text-end [text-shadow:_.1px_.7px_0px_#000]" >{detail?.stats[0]?.base_stat}<span></span> HP</p> 
                         </div>
-                        <h2 class=`font-bold uppercase text-lg ${textColor} flex-1 text-center`>{pokemonName}</h2>
-                        <p class="text-red-500 font-medium text-2xl flex-1 text-end [text-shadow:_.1px_.7px_0px_#000]" >{detail?.stats[0]?.base_stat}<span></span> HP</p> 
                     </div>
+                    {   evolve != null ?
+                            <div class="mx-auto w-12 h-12 absolute border-2 border-white shadow-inner rounded-tl-3xl rounded-br-3xl rounded-bl-2xl rounded-tr-2xl top-1 left-1 bg-[#BEBEBE]">
+                                <img class="object-cover object-center skew-y-6 w-full" src={evolve?.sprites?.other["official-artwork"]?.front_default} alt={evolve?.name} title={evolve?.name}>
+                            </div>
+                        : ""
+                    }
+
                     <div class="mx-auto h-52 w-[19rem] relative-mt-18 border-8 shadow-[4px_4px_10px_1px] border-yellow-300 overflow-hidden flex items-center justify-center">
                         <img class="object-cover object-center w-32" src={detail.sprites.other.showdown.front_default != null ? 
                     detail?.sprites?.other?.showdown?.front_default : detail.sprites.other["official-artwork"].front_default} alt={detail?.name}>
@@ -75,44 +81,22 @@ if (checkType != null) textColor = "text-white"
                     </div>
                     <br>
                     <p class=`w-[18rem] mx-auto text-justify ${textColor} font-medium leading-5`>{pokemonText}</p>
+                    <br>
 
-                    <!-- Se pone en dado caso de que tenga evolución el pokémon -->
-                    <p class="text-center font-semibold text-lg">Evolutions</p>
-                    <div class="mx-auto w-12 h-12 relative border-2 border-yellow-50 rounded-full">
-                        <img class="object-cover object-center skew-y-6 w-full" src={detail.sprites.other["official-artwork"].front_default} alt={detail?.name}>
+                    <div class="w-[18rem]">
+                        <p class="text-center">types</p>
                     </div>
-                    <!-- Se pone en dado caso de que tenga evolución el pokémon -->
 
+                    <div class="flex">
+                        {
+                            detail?.types.map((item) =>(
+                                <img class="me-0.5" src=`/img/icons/${item.type.name}.webp` alt={item.type.name} title={item.type.name} width="25px" height="25px"> 
+                            ))
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- <div class="max-w-xl mx-4 sm:max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-sm sm:mx-auto md:mx-auto lg:mx-auto xl:mx-auto mt-32 align-middle bg-white shadow-[4px_4px_540px_40px] shadow-amber-100 rounded-lg text-gray-900 h-[600px]">
-            <div class="rounded-t-lg h-40 overflow-hidden">
-                <img class="object-cover object-top w-full" src=`/img/landscape/${detail?.types[0]?.type?.name}.webp` alt={detail?.types[0]?.type?.name}>
-            </div>
-
-            <div class="mx-auto w-48 h-48 relative -mt-24 border-4 border-yellow-50 rounded-full overflow-hidden">
-                <img class="object-cover object-center skew-y-6 w-full" src={detail.sprites.other.showdown.front_default != null ? 
-                detail?.sprites?.other?.showdown?.front_default : detail.sprites.other["official-artwork"].front_default} alt={detail?.name}>
-            </div>
-            <div class="text-center mt-2 mx-3">
-                <h2 class="font-semibold">{detail?.name}</h2>
-                <p class="text-gray-500">{specie?.flavor_text_entries[0]?.flavor_text}</p>
-            </div>
-            <ul class="py-4 mt-2 text-gray-700 flex items-center justify-around">
-                <li class="flex flex-col">
-                    <img class="w-10 mx-auto fill-current text-blue-900 mb-3" src="element.svg" alt="element">
-                    {
-                        detail?.types.map((item) =>(
-                            <div class="flex mb-1">
-                                <img class="me-1" src=`/img/icons/${item.type.name}.webp` alt={item.type.name} width="25px" height="25px"> 
-                                <p class="capitalize">{item.type.name}</p>
-                            </div>
-                        ))
-                    }
-                </li>
-            </ul>
-        </div> -->
     </main>
 </Layout>
 
