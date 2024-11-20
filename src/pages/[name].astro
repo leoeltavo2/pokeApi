@@ -30,7 +30,7 @@ export async function getStaticPaths() {
 
 const imageUrl = `/img/landscape/${detail?.types[0]?.type?.name}.webp`;
 const pokemonName = detail?.name.replaceAll("-", " ");
-const checkType = detail?.types[0]?.type?.name.match(/dark|fairy|fighting|ghost|ice|poison|psychic|steel|water|fire|electric/)
+const checkType = detail?.types[0]?.type?.name.match(/dark|fairy|fighting|ghost|ice|poison|psychic|steel|water|fire|electric|dragon/)
 const nameEvolve = specie?.evolves_from_species?.name;
 let genusText = "???";
 let pokemonText = "???";
@@ -83,11 +83,22 @@ if (checkType != null) textColor = "text-white"
                     <p class=`w-[18rem] mx-auto text-justify ${textColor} font-medium leading-5`>{pokemonText}</p>
                     <br>
 
-                    <div class="w-[18rem]">
-                        <p class="text-center">types</p>
+                    <h3 class=`font-bold uppercase text-lg ${textColor} text-center`>Stats</h3>
+                    <div class=`px-1 mx-auto flex justify-around ${textColor} text-center`>
+                        <div>
+                            <p class="rounded-full bg-orange-300">Attack <span>{detail?.stats[1]?.base_stat}</span></p>
+                            <p class="rounded-full bg-orange-300 px-2 mt-1">SP Attack <span>{detail?.stats[3]?.base_stat}</span></p>
+                        </div>
+                        <div>
+                            <p class="rounded-full bg-orange-300">Defense <span>{detail?.stats[2]?.base_stat}</span></p>
+                            <p class="rounded-full bg-orange-300 px-2 mt-1">SP Defense <span>{detail?.stats[4]?.base_stat}</span></p>
+                        </div>
+                        <div>
+                            <p class="rounded-full bg-orange-300 px-2">Speed <span>{detail?.stats[5]?.base_stat}</span></p>
+                        </div>
                     </div>
 
-                    <div class="flex">
+                    <div class="flex flex-row-reverse">
                         {
                             detail?.types.map((item) =>(
                                 <img class="me-0.5" src=`/img/icons/${item.type.name}.webp` alt={item.type.name} title={item.type.name} width="25px" height="25px"> 
