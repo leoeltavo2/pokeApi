@@ -49,6 +49,15 @@ specie?.flavor_text_entries?.map((item) =>(
 ));
 
 if (checkType != null) textColor = "text-white"
+
+// Stats
+const attack = detail?.stats[1]?.base_stat; 
+const SPAttack = detail?.stats[3]?.base_stat; 
+const defense = detail?.stats[2]?.base_stat; 
+const SPDefense = detail?.stats[4]?.base_stat; 
+const speed = detail?.stats[5]?.base_stat; 
+const hp = detail?.stats[0]?.base_stat; 
+console.log(name);
 ---
 
 <Layout title="pokemon">
@@ -60,12 +69,14 @@ if (checkType != null) textColor = "text-white"
                         <div class="flex-none w-14"></div>
                         <h2 class=`font-bold uppercase text-lg ${textColor} flex-1`>{pokemonName}</h2>
                         <div class="flex-none">
-                            <p class="text-red-500 font-medium text-2xl  text-end [text-shadow:_.1px_.7px_0px_#000]" >{detail?.stats[0]?.base_stat}<span></span> HP</p> 
+                            <p class="text-red-500 font-medium text-2xl  text-end [text-shadow:_.1px_.7px_0px_#000]" >{hp}<span></span> HP</p> 
                         </div>
                     </div>
                     {   evolve != null ?
                             <div class="mx-auto w-12 h-12 absolute border-2 border-white shadow-inner rounded-tl-3xl rounded-br-3xl rounded-bl-2xl rounded-tr-2xl top-1 left-1 bg-[#BEBEBE]">
-                                <img class="object-cover object-center skew-y-6 w-full" src={evolve?.sprites?.other["official-artwork"]?.front_default} alt={evolve?.name} title={evolve?.name}>
+                                <a href={`/${evolve?.name}`}>
+                                    <img class="object-cover object-center skew-y-6 w-full" src={evolve?.sprites?.other["official-artwork"]?.front_default} alt={evolve?.name} title={evolve?.name}>
+                                </a>
                             </div>
                         : ""
                     }
@@ -81,21 +92,42 @@ if (checkType != null) textColor = "text-white"
                     </div>
                     <br>
                     <p class=`w-[18rem] mx-auto text-justify ${textColor} font-medium leading-5`>{pokemonText}</p>
-                    <br>
+                    
+                    <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700">
 
-                    <h3 class=`font-bold uppercase text-lg ${textColor} text-center`>Stats</h3>
-                    <div class=`px-1 mx-auto flex justify-around ${textColor} text-center`>
+                    <div class="grid grid-cols-5 gap-1 items-center  mb-1">
+                        <div></div>
+                        <h3 class=`font-bold uppercase text-lg ${textColor} text-center col-start-3` id="modalStat">Stats</h3>
+                        <svg class=`w-[20px] h-[20px] cursor-pointer text-right ${textColor}` data-popover-target="popover-default" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                            <path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        </svg>
+                    </div>
+                      
+                    <div class=`px-1 mx-auto flex justify-around  text-center`>
                         <div>
-                            <p class="rounded-full bg-orange-300">Attack <span>{detail?.stats[1]?.base_stat}</span></p>
-                            <p class="rounded-full bg-orange-300 px-2 mt-1">SP Attack <span>{detail?.stats[3]?.base_stat}</span></p>
+                            <p class="rounded-full bg-[#ffdf00]">Attack <span>{attack}</span></p>
+                            <p class="rounded-full bg-[#ffdf00] px-2 mt-1">SP Attack <span>{SPAttack}</span></p>
                         </div>
                         <div>
-                            <p class="rounded-full bg-orange-300">Defense <span>{detail?.stats[2]?.base_stat}</span></p>
-                            <p class="rounded-full bg-orange-300 px-2 mt-1">SP Defense <span>{detail?.stats[4]?.base_stat}</span></p>
+                            <p class="rounded-full bg-[#ffdf00]">Defense <span>{defense}</span></p>
+                            <p class="rounded-full bg-[#ffdf00] px-2 mt-1">SP Defense <span>{SPDefense}</span></p>
                         </div>
                         <div>
-                            <p class="rounded-full bg-orange-300 px-2">Speed <span>{detail?.stats[5]?.base_stat}</span></p>
+                            <p class="rounded-full bg-[#ffdf00] px-2">Speed <span>{speed}</span></p>
                         </div>
+                    </div>
+                    <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700">
+
+                    <!-- popover -->
+                    <div data-popover id="popover-default" role="tooltip" class="absolute z-10 invisible inline-block w-80 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
+                        <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
+                            <h3 class="font-semibold text-gray-900 dark:text-white">{pokemonName} stats</h3>
+                        </div>
+                        <div class="px-3 py-2">
+                            <canvas id="stats" width="200" height="200"></canvas> 
+                        </div>
+                        <div data-popper-arrow></div>
                     </div>
 
                     <div class="flex flex-row-reverse">
@@ -118,3 +150,55 @@ if (checkType != null) textColor = "text-white"
         background-size: cover;
     }
 </style>
+
+<script define:vars={{ attack, SPAttack, defense, SPDefense, speed }}>
+    document.addEventListener("DOMContentLoaded", () => {
+    var ctx = document.getElementById('stats').getContext('2d');
+    const getAttack = {attack};
+    const getSPAttack = {SPAttack};
+    const getDefense = {defense};
+    const getSPDefense= {SPDefense};
+    const getSpeed= {speed};
+    var myChart = new Chart(ctx, {
+            type: 'radar', 
+            data: {
+                labels: [
+                    'Attack',
+                    'Defense',
+                    'Special Attack',
+                    'Special Defense',
+                    'Speed',
+                ],
+                datasets: [{
+                    data: [getAttack.attack, getDefense.defense, getSPAttack.SPAttack, getSPDefense.SPDefense, getSpeed.speed],
+                    fill: true,
+                    backgroundColor: '#ff573329',
+                    borderColor: '#ff5733',
+                    pointBackgroundColor: '#ff0000',
+                    pointBorderColor: '#ff0000',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#ff0000'
+                }]
+            },
+            options: {
+                responsive: true,
+                elements: {
+                    line: {
+                        borderWidth: 3
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                pointLabels :{
+                    fontColor: '#333',
+                    fontFamily: "'Raleway', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                    fontSize: 12,
+                    fontWeight: 600,
+                },
+            }
+        });
+});
+</script>
