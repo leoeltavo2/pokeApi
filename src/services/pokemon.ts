@@ -21,6 +21,7 @@ export const getLanguage = async({id}: { id: number }) => {
 
 // Obtener la lista de pokemon
 export const getPokemonList = async() => {
+    // const allPokemon = await fetch("https://pokeapi.co/api/v2/pokemon?offset=20&limit=20")
     const allPokemon = await fetch("https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")
     const data = await allPokemon.json();
     const pokemonList = data.results;
